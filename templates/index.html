@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多面体 · 会说很多种话的聊天机器人</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0f14'/%3E%3Cpath d='M16 5.5 26 11.2v9.6L16 26.5 6 20.8v-9.6Z M16 5.5v21 M6 11.2l20 9.6 M26 11.2 6 20.8' fill='none' stroke='%23c9a227' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="is-booting">
+<div class="aura" aria-hidden="true"></div>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 4.5 27 11v10l-11 6.5L5 21V11Z"/>
+        <path d="M16 4.5v23M5 11l22 10M27 11 5 21"/>
+      </svg>
+      <div class="brand-copy">
+        <strong>多面体</strong>
+        <span>一个会说很多种话的聊天机器人</span>
+      </div>
+    </div>
+
+    <p class="rail-label">选一个性格</p>
+    <nav class="persona-list" id="personaList" aria-label="切换机器人性格"></nav>
+    <button class="add-persona" id="addPersona" type="button">
+      <span aria-hidden="true">＋</span> 自定义性格
+    </button>
+
+    <div class="rail-foot" id="railFoot"></div>
+  </aside>
+
+  <main class="stage">
+    <header class="topbar">
+      <div class="who">
+        <span class="sigil" id="whoSigil" aria-hidden="true"></span>
+        <span class="who-copy">
+          <strong id="whoName">御姐</strong>
+          <em id="whoTagline"></em>
+        </span>
+      </div>
+      <div class="controls">
+        <label class="ctl">
+          <span class="ctl-name">灵动度</span>
+          <input type="range" id="temp" min="0" max="1.5" step="0.05" aria-label="灵动度（temperature）">
+          <output id="tempOut">0.80</output>
+        </label>
+        <label class="ctl">
+          <span class="ctl-name">模型</span>
+          <select id="model" aria-label="选择模型">
+            {% for m in models %}
+            <option value="{{ m }}" {% if m == default_model %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button class="ghost" id="newChat" type="button">新对话</button>
+      </div>
+    </header>
+
+    <section class="thread" id="thread" role="log" aria-label="对话内容" aria-live="polite"></section>
+
+    <footer class="composer">
+      <form id="composerForm" autocomplete="off">
+        <div class="field">
+          <textarea id="input" rows="1" placeholder="说点什么……（Enter 发送，Shift + Enter 换行）" aria-label="输入消息"></textarea>
+          <button class="send" id="send" type="submit">发送</button>
+        </div>
+      </form>
+      <p class="fineprint" id="fineprint"></p>
+    </footer>
+  </main>
+</div>
+
+<dialog class="modal" id="personaModal">
+  <form method="dialog" id="personaForm">
+    <h2>造一个新性格</h2>
+    <p class="modal-lead">描述越具体，说话越像那个人。填完会立刻出现在左边的列表里。</p>
+
+    <label class="field-line">
+      <span>叫什么</span>
+      <input id="cpName" maxlength="12" placeholder="例如：赛博祖宗" required>
+    </label>
+
+    <label class="field-line">
+      <span>一句话口头禅</span>
+      <input id="cpTagline" maxlength="24" placeholder="例如：让我先骂两句代码。">
+    </label>
+
+    <label class="field-line">
+      <span>他是谁</span>
+      <textarea id="cpDesc" rows="3" maxlength="300" placeholder="例如：一个在机房住了十年的老前辈，懂底层实现，看不起只会调库的人。"></textarea>
+    </label>
+
+    <label class="field-line">
+      <span>怎么说话</span>
+      <textarea id="cpStyle" rows="2" maxlength="200" placeholder="例如：语气冷淡，爱用比喻，说完会补一句原因。"></textarea>
+    </label>
+
+    <label class="field-line inline">
+      <span>主色</span>
+      <input type="color" id="cpAccent" value="#C9A227">
+    </label>
+
+    <div class="modal-actions">
+      <button class="ghost" value="cancel" type="button" id="cpCancel">算了</button>
+      <button class="send" value="confirm" type="submit">造出来</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+window.__BOOT__ = {
+  personas: {{ personas_json | safe }},
+  defaultModel: {{ default_model | tojson }}
+};
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
